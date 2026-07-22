@@ -1,0 +1,230 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* ═══════════════════════════════════════════════════════
+   TAILWIND v4 THEME — registers CSS vars as utilities
+   ═══════════════════════════════════════════════════════ */
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+  /* Radius */
+  --radius-sm:  0.375rem;
+  --radius-md:  0.625rem;
+  --radius-lg:  0.875rem;
+  --radius-xl:  1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Brand color ramp — indigo */
+  --color-brand-50:  oklch(97% 0.02 270);
+  --color-brand-100: oklch(93% 0.05 270);
+  --color-brand-200: oklch(85% 0.10 270);
+  --color-brand-300: oklch(74% 0.16 270);
+  --color-brand-400: oklch(63% 0.22 270);
+  --color-brand-500: oklch(54% 0.26 270);
+  --color-brand-600: oklch(47% 0.28 270);
+  --color-brand-700: oklch(39% 0.26 270);
+  --color-brand-800: oklch(31% 0.22 270);
+  --color-brand-900: oklch(22% 0.16 270);
+
+  /* Canvas */
+  --color-canvas:     oklch(97.5% 0.005 250);
+  --color-canvas-alt: oklch(99%   0.002 250);
+
+  /* Surface */
+  --color-surface:       oklch(100%  0     0);
+  --color-surface-raised:oklch(98.5% 0.004 250);
+  --color-surface-muted: oklch(95%   0.008 250);
+
+  /* Borders */
+  --color-line:       oklch(88% 0.012 250);
+  --color-line-muted: oklch(92% 0.008 250);
+
+  /* Text */
+  --color-ink:        oklch(18%  0.02  250);
+  --color-ink-muted:  oklch(48%  0.02  250);
+  --color-ink-faint:  oklch(68%  0.012 250);
+
+  /* Status */
+  --color-success:  oklch(60% 0.18 155);
+  --color-warning:  oklch(72% 0.17 70);
+  --color-danger:   oklch(58% 0.22 20);
+}
+
+/* ═══════════════════════════════════════════════════════
+   BASE RESET
+   ═══════════════════════════════════════════════════════ */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    min-height: 100svh;
+    line-height: 1.6;
+  }
+
+  code, kbd, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+
+  /* Thin scrollbars */
+  ::-webkit-scrollbar       { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-faint);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMPONENT CLASSES  (use these in JSX directly)
+   ═══════════════════════════════════════════════════════ */
+@layer components {
+  /* Surfaces */
+  .surface          { background-color: var(--color-surface); }
+  .surface-raised   { background-color: var(--color-surface-raised); }
+  .surface-muted    { background-color: var(--color-surface-muted); }
+
+  /* Card */
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px oklch(0% 0 0 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.04);
+  }
+  .card-muted {
+    background-color: var(--color-surface-raised);
+    border: 1px solid var(--color-line-muted);
+    border-radius: var(--radius-xl);
+  }
+
+  /* Brand button */
+  .btn-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0 0.875rem;
+    height: 2.25rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background-color: var(--color-brand-600);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s, opacity 0.15s;
+  }
+  .btn-brand:hover:not(:disabled) { background-color: var(--color-brand-700); }
+  .btn-brand:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Ghost button */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0 0.75rem;
+    height: 2rem;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+    background: transparent;
+    border: 1px solid var(--color-line);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-surface-muted);
+    color: var(--color-ink);
+  }
+  .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Pill badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface-raised);
+    color: var(--color-ink-muted);
+  }
+
+  /* Input */
+  .input-base {
+    width: 100%;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    font-size: 0.8125rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input-base::placeholder { color: var(--color-ink-faint); }
+  .input-base:focus {
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 3px oklch(54% 0.26 270 / 0.12);
+  }
+  .input-base:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-enter {
+  animation: fade-in-up 0.22s ease-out both;
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+.anim-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted) 25%,
+    var(--color-line)          50%,
+    var(--color-surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-full);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.anim-spin {
+  animation: spin 0.8s linear infinite;
+}
