@@ -3,9 +3,9 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Subtitle RAG — Transcript-Grounded Q&A",
+  title: "Mynk RAG — Ask Your Course Transcripts",
   description:
-    "Ask anything about your course transcripts. Get answers grounded in exact timestamps and verified quotes from .srt and .vtt files.",
+    "Ask any question about your course recordings and get precise answers with timestamps and source evidence. Powered by Mynk RAG.",
 };
 
 export default function RootLayout({

@@ -19,10 +19,10 @@ interface QueryPanelProps {
 }
 
 const SAMPLE_QUERIES = [
-  "What is mobile development?",
-  "Expo vs React Native differences?",
-  "How does vector similarity search work?",
-  "Key advanced RAG patterns?",
+  "What were the key concepts covered in the last session?",
+  "Explain the main topic discussed around [time].",
+  "What was said about building production pipelines?",
+  "Summarise the Q&A from the end of the lecture.",
 ];
 
 function SendIcon() {
@@ -102,7 +102,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [answer, setAnswer] = useState<GroundedResponse | null>(null);
-  const [micActive, setMicActive] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -226,8 +226,8 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
           </button>
 
           <span style={{ color:"var(--color-brand-600)" }}><BookIcon /></span>
-          <span style={{ fontSize:13, fontWeight:600, color:"var(--color-ink)" }}>Transcript Q&amp;A</span>
-          <span style={s.pill}>pgvector · hybrid retrieval</span>
+          <span style={{ fontSize:13, fontWeight:600, color:"var(--color-ink)" }}>Ask Your Courses</span>
+          <span style={s.pill}>Answers with timestamps &amp; source evidence</span>
         </div>
         {answer && (
           <button className="btn-ghost" onClick={handleReset} style={{ gap:5, height:30 }}>
@@ -251,7 +251,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
                   Start by uploading course transcripts
                 </h3>
                 <p style={{ fontSize:12, color:"var(--color-ink-muted)", lineHeight:1.7, margin: 0 }}>
-                  Your transcript library is currently empty. Use the upload zone in the sidebar to add your first subtitle file (.srt or .vtt) to start performing vector search.
+                  Your library is empty. Use the upload panel on the left to add your first subtitle file (.srt or .vtt) to get started.
                 </p>
               </div>
               
@@ -275,10 +275,10 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
               </div>
               <div style={{ maxWidth:320 }}>
                 <p style={{ fontSize:14, fontWeight:600, color:"var(--color-ink)", marginBottom:6 }}>
-                  Searching transcript vectors…
+                  Finding your answer…
                 </p>
                 <p style={{ fontSize:12, color:"var(--color-ink-muted)", lineHeight:1.6 }}>
-                  Running hybrid retrieval across embedded subtitle chunks and grounding the answer to exact timestamps.
+                  Searching across your transcripts and pinning the answer to the exact moment it was said.
                 </p>
               </div>
               <div style={{ width:"100%", maxWidth:480, display:"flex", flexDirection:"column", gap:8, marginTop:8 }}>
@@ -335,7 +335,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
                   Ask anything about the course
                 </h3>
                 <p style={{ fontSize:12, color:"var(--color-ink-muted)", lineHeight:1.7 }}>
-                  Answers are grounded strictly in the indexed subtitle transcripts — each response includes the source lesson, exact timestamp range, and verbatim transcript evidence.
+                  Every answer is grounded in your uploaded transcripts — you’ll always see the source lesson, exact timestamp, and the verbatim quote it came from.
                 </p>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, width:"100%", maxWidth:480 }}>
@@ -406,24 +406,24 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
             }}
           />
           <div style={s.btnRow}>
-            {/* Mic */}
+            {/* Mic - Coming Soon */}
             <button
               type="button"
-              disabled={!hasSources}
-              onClick={() => setMicActive(!micActive)}
-              title={micActive ? "Stop" : "Voice input"}
+              disabled
+              title="Voice input — coming soon"
+              aria-label="Voice input (coming soon)"
               style={{
                 width:32, height:32,
                 display:"flex", alignItems:"center", justifyContent:"center",
                 borderRadius:"var(--radius-md)",
                 border:"1px solid var(--color-line)",
-                backgroundColor: micActive ? "oklch(58% 0.22 20 / 0.12)" : "var(--color-surface)",
-                color: micActive ? "var(--color-danger)" : "var(--color-ink-faint)",
-                cursor: hasSources ? "pointer" : "not-allowed",
-                opacity: hasSources ? 1 : 0.5,
+                backgroundColor: "var(--color-surface-muted)",
+                color: "var(--color-ink-faint)",
+                cursor: "not-allowed",
+                opacity: 0.45,
               }}
             >
-              <MicIcon active={micActive} />
+              <MicIcon />
             </button>
             {/* Send */}
             <button

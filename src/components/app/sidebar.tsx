@@ -93,10 +93,10 @@ export function Sidebar({ isOpen, setIsOpen, onSourcesChange }: SidebarProps) {
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink)", lineHeight: 1.2 }}>
-                Subtitle RAG
+                Mynk RAG
               </div>
               <div style={{ fontSize: 10, color: "var(--color-ink-faint)", marginTop: 2, lineHeight: 1 }}>
-                Transcript-grounded Q&amp;A
+                Answers with timestamps &amp; source evidence
               </div>
             </div>
           </div>

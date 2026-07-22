@@ -95,11 +95,11 @@ export function SourcePanel({ onSourcesChange }: SourcePanelProps) {
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-ink-faint)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-            Active Library ({sources.length})
+            Your Library ({sources.length})
           </span>
           {sources.length > 0 && (
             <span style={{ fontSize: 10, color: "var(--color-ink-faint)" }}>
-              {totalCues.toLocaleString()} cues
+              {totalCues.toLocaleString()} segments
             </span>
           )}
         </div>
@@ -167,7 +167,7 @@ export function SourcePanel({ onSourcesChange }: SourcePanelProps) {
                     flexShrink: 0,
                   }}
                 >
-                  {s.cues} cues
+                  {s.cues} segments
                 </span>
               </div>
             ))}

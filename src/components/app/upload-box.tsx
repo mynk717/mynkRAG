@@ -16,9 +16,7 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
 
   // Dev Ingest states
   const [showDevIngest, setShowDevIngest] = useState(false);
-  const [folderPath, setFolderPath] = useState(
-    "/home/mynk/Documents/Zoom/2026-07-20 22.30.58 Advanced RAG Patterns/"
-  );
+  const [folderPath, setFolderPath] = useState("");
   const [devScanning, setDevScanning] = useState(false);
   const [devIndexing, setDevIndexing] = useState(false);
 
@@ -98,7 +96,7 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
       if (!res.ok) throw new Error(data.error || "Failed to process YouTube URL");
 
       toast.success(
-        `YouTube Video Indexed: "${data.summary.lessonName}" (${data.summary.totalCuesIndexed} cues, ${data.summary.totalChunksIndexed} chunks).`
+        `"${data.summary.lessonName}" added — ${data.summary.totalCuesIndexed} segments across ${data.summary.totalChunksIndexed} searchable chunks.`
       );
       setYoutubeUrl("");
       onUploadSuccess();
@@ -436,74 +434,76 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
         </div>
       )}
 
-      {/* ── Local Folder Ingest (Dev-only block) ─────────── */}
-      <div style={{ borderTop: "1px solid var(--color-line-muted)", paddingTop: 10 }}>
-        <button
-          onClick={() => setShowDevIngest(!showDevIngest)}
-          style={{
-            background: "none",
-            border: "none",
-            width: "100%",
-            textAlign: "left",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            fontSize: 10,
-            fontWeight: 600,
-            color: "var(--color-ink-faint)",
-            cursor: "pointer",
-            padding: "4px 0",
-          }}
-        >
-          <span>DEVELOPER INGEST UTILITY (DEV ONLY)</span>
-          <span>{showDevIngest ? "▼" : "▶"}</span>
-        </button>
-
-        {showDevIngest && (
-          <div
-            className="card"
+      {/* ── Local Folder Ingest (Dev-only: hidden in production) ─── */}
+      {process.env.NODE_ENV === "development" && (
+        <div style={{ borderTop: "1px solid var(--color-line-muted)", paddingTop: 10 }}>
+          <button
+            onClick={() => setShowDevIngest(!showDevIngest)}
             style={{
-              padding: 10,
-              marginTop: 6,
-              backgroundColor: "var(--color-surface-raised)",
+              background: "none",
+              border: "none",
+              width: "100%",
+              textAlign: "left",
               display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              borderStyle: "dashed",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: 10,
+              fontWeight: 600,
+              color: "var(--color-ink-faint)",
+              cursor: "pointer",
+              padding: "4px 0",
             }}
           >
-            <p style={{ fontSize: 9, color: "var(--color-ink-muted)", margin: 0 }}>
-              Specify a local server-side directory to index multiple files at once.
-            </p>
-            <input
-              className="input-base"
-              style={{ fontFamily: "var(--font-mono)", fontSize: 10, height: 28 }}
-              value={folderPath}
-              onChange={(e) => setFolderPath(e.target.value)}
-              placeholder="Absolute server folder path..."
-              disabled={devScanning || devIndexing}
-            />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-              <button
-                className="btn-ghost"
-                style={{ height: 26, fontSize: 10, padding: 0 }}
-                onClick={handleFolderIngest}
+            <span>Dev tools</span>
+            <span>{showDevIngest ? "▼" : "▶"}</span>
+          </button>
+
+          {showDevIngest && (
+            <div
+              className="card"
+              style={{
+                padding: 10,
+                marginTop: 6,
+                backgroundColor: "var(--color-surface-raised)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                borderStyle: "dashed",
+              }}
+            >
+              <p style={{ fontSize: 9, color: "var(--color-ink-muted)", margin: 0 }}>
+                Specify a local server-side directory to index multiple files at once.
+              </p>
+              <input
+                className="input-base"
+                style={{ fontFamily: "var(--font-mono)", fontSize: 10, height: 28 }}
+                value={folderPath}
+                onChange={(e) => setFolderPath(e.target.value)}
+                placeholder="Absolute server folder path..."
                 disabled={devScanning || devIndexing}
-              >
-                {devScanning ? "Scanning…" : "Scan Directory"}
-              </button>
-              <button
-                className="btn-brand"
-                style={{ height: 26, fontSize: 10, padding: 0 }}
-                onClick={handleStartIndexing}
-                disabled={devScanning || devIndexing}
-              >
-                {devIndexing ? "Indexing…" : "Parse & Index"}
-              </button>
+              />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                <button
+                  className="btn-ghost"
+                  style={{ height: 26, fontSize: 10, padding: 0 }}
+                  onClick={handleFolderIngest}
+                  disabled={devScanning || devIndexing}
+                >
+                  {devScanning ? "Scanning…" : "Scan Directory"}
+                </button>
+                <button
+                  className="btn-brand"
+                  style={{ height: 26, fontSize: 10, padding: 0 }}
+                  onClick={handleStartIndexing}
+                  disabled={devScanning || devIndexing}
+                >
+                  {devIndexing ? "Indexing…" : "Parse & Index"}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
     </div>
   );
