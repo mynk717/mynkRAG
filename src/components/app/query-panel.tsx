@@ -131,13 +131,15 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
     setError(null);
     setQuery("");
 
-    // 1. Add User Message
-    const userMessageId = `user-${Date.now()}`;
-    setMessages((prev) => [...prev, { id: userMessageId, role: "user", text: q }]);
+    const randomSuffix = () => Math.random().toString(36).substring(2, 9);
+    const userMessageId = `user-${Date.now()}-${randomSuffix()}`;
+    const assistantPlaceholderId = `assistant-placeholder-${Date.now()}-${randomSuffix()}`;
 
-    // 2. Add temporary Loading Assistant Message
-    const assistantPlaceholderId = `assistant-placeholder-${Date.now()}`;
-    setMessages((prev) => [...prev, { id: assistantPlaceholderId, role: "assistant", text: "", isLoading: true }]);
+    setMessages((prev) => [
+      ...prev,
+      { id: userMessageId, role: "user", text: q },
+      { id: assistantPlaceholderId, role: "assistant", text: "", isLoading: true }
+    ]);
 
     try {
       const res = await fetch("/api/query", {
@@ -153,7 +155,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
         prev.map((msg) =>
           msg.id === assistantPlaceholderId
             ? {
-                id: `assistant-${Date.now()}`,
+                id: `assistant-${Date.now()}-${randomSuffix()}`,
                 role: "assistant",
                 text: data.answer,
                 sourceLesson: data.sourceLesson,
@@ -366,16 +368,19 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
               {messages.map((msg) => (
                 <div key={msg.id} className="anim-enter">
                   {msg.role === "user" ? (
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <div style={{ display: "flex", justifyContent: "flex-end", width: "100%", margin: "8px 0" }}>
                       <div
                         style={{
-                          maxWidth: "85%",
-                          backgroundColor: "var(--color-brand-600)",
-                          color: "#fff",
-                          padding: "10px 14px",
-                          borderRadius: "var(--radius-md) var(--radius-md) 2px var(--radius-md)",
-                          fontSize: "13.5px",
-                          lineHeight: 1.5,
+                          maxWidth: "80%",
+                          backgroundColor: "var(--color-brand-600, #4f46e5)",
+                          color: "#ffffff",
+                          padding: "12px 16px",
+                          borderRadius: "14px 14px 2px 14px",
+                          fontSize: "14px",
+                          lineHeight: 1.55,
+                          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+                          wordBreak: "break-word",
+                          whiteSpace: "pre-wrap",
                         }}
                       >
                         {msg.text}
