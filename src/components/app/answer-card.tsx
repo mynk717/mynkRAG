@@ -8,6 +8,23 @@ export interface AnswerCardProps {
   timestampRange?: string;
   snippets?: string[];
   explanation?: string;
+  sourceUrl?: string;
+  sourceType?: string;
+  startMs?: number | null;
+}
+
+function parseVideoId(url: string): string | null {
+  const patterns = [
+    /(?:v=)([\w-]{11})/,           // ?v=ID
+    /youtu\.be\/([\w-]{11})/,      // youtu.be/ID
+    /embed\/([\w-]{11})/,          // /embed/ID
+    /shorts\/([\w-]{11})/,         // /shorts/ID
+  ];
+  for (const pat of patterns) {
+    const m = url.match(pat);
+    if (m) return m[1];
+  }
+  return null;
 }
 
 function BookIcon() {
@@ -53,8 +70,26 @@ export function AnswerCard({
   timestampRange = "—",
   snippets = [],
   explanation,
+  sourceUrl,
+  sourceType,
+  startMs,
 }: AnswerCardProps) {
   const [showEvidence, setShowEvidence] = useState(true);
+
+  const isYouTube = sourceType === "youtube" && !!sourceUrl;
+  const youtubeUrlWithTimestamp = (() => {
+    if (!isYouTube || !sourceUrl) return null;
+    const videoId = parseVideoId(sourceUrl);
+    if (!videoId) return sourceUrl;
+    const seconds = startMs ? Math.floor(startMs / 1000) : 0;
+    return `https://www.youtube.com/watch?v=${videoId}&t=${seconds}`;
+  })();
+
+  const handleJumpToTimestamp = () => {
+    if (youtubeUrlWithTimestamp) {
+      window.open(youtubeUrlWithTimestamp, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <div className="card" style={{ overflow:"hidden" }}>
@@ -152,16 +187,19 @@ export function AnswerCard({
           </p>
         )}
 
-        {/* Footer action */}
-        <div style={{ display:"flex", justifyContent:"flex-end", borderTop:"1px solid var(--color-line-muted)", paddingTop:10 }}>
-          <button
-            className="btn-ghost"
-            style={{ gap:6, color:"var(--color-brand-600)", borderColor:"oklch(54% 0.26 270 / 0.25)" }}
-          >
-            <PlayIcon />
-            Jump to timestamp
-          </button>
-        </div>
+        {/* Footer action - Show only if playable/clickable YouTube source exists */}
+        {isYouTube && youtubeUrlWithTimestamp && (
+          <div style={{ display:"flex", justifyContent:"flex-end", borderTop:"1px solid var(--color-line-muted)", paddingTop:10 }}>
+            <button
+              onClick={handleJumpToTimestamp}
+              className="btn-ghost"
+              style={{ gap:6, color:"var(--color-brand-600)", borderColor:"oklch(54% 0.26 270 / 0.25)" }}
+            >
+              <PlayIcon />
+              Jump to timestamp
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

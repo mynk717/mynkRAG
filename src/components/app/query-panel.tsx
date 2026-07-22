@@ -4,12 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { AnswerCard } from "./answer-card";
 import { toast } from "sonner";
 
-interface GroundedResponse {
-  answer: string;
-  sourceLesson: string;
-  timestampRange: string;
-  snippets: string[];
-  explanation: string;
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+  isLoading?: boolean;
+  sourceLesson?: string;
+  timestampRange?: string;
+  snippets?: string[];
+  explanation?: string;
+  sourceUrl?: string;
+  sourceType?: string;
+  startMs?: number | null;
 }
 
 interface QueryPanelProps {
@@ -34,9 +40,9 @@ function SendIcon() {
   );
 }
 
-function MicIcon({ active }: { active?: boolean }) {
+function MicIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
       <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
     </svg>
@@ -99,25 +105,40 @@ function Spinner() {
 
 export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: QueryPanelProps) {
   const [query, setQuery] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [answer, setAnswer] = useState<GroundedResponse | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { textareaRef.current?.focus(); }, []);
-  useEffect(() => {
-    if (answer) setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-  }, [answer]);
 
-  const handleSubmit = async (e?: React.FormEvent | React.KeyboardEvent) => {
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length, loading]);
+
+  const handleSubmit = async (e?: React.FormEvent | React.KeyboardEvent, customQuery?: string) => {
     e?.preventDefault();
-    const q = query.trim();
+    const q = (customQuery ?? query).trim();
     if (!q || loading || !hasSources) return;
+
     setLoading(true);
     setError(null);
-    setAnswer(null);
+    setQuery("");
+
+    // 1. Add User Message
+    const userMessageId = `user-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: userMessageId, role: "user", text: q }]);
+
+    // 2. Add temporary Loading Assistant Message
+    const assistantPlaceholderId = `assistant-placeholder-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: assistantPlaceholderId, role: "assistant", text: "", isLoading: true }]);
+
     try {
       const res = await fetch("/api/query", {
         method: "POST",
@@ -126,16 +147,40 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Query failed");
-      setAnswer(data);
+
+      // 3. Update the temporary Assistant Message with actual response data
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantPlaceholderId
+            ? {
+                id: `assistant-${Date.now()}`,
+                role: "assistant",
+                text: data.answer,
+                sourceLesson: data.sourceLesson,
+                timestampRange: data.timestampRange,
+                snippets: data.snippets,
+                explanation: data.explanation,
+                sourceUrl: data.sourceUrl,
+                sourceType: data.sourceType,
+                startMs: data.startMs,
+              }
+            : msg
+        )
+      );
     } catch (err: any) {
       const msg = err.message || "An error occurred";
       setError(msg);
       toast.error(msg);
-    } finally { setLoading(false); }
+      // Remove the loader if the request failed
+      setMessages((prev) => prev.filter((m) => m.id !== assistantPlaceholderId));
+    } finally {
+      setLoading(false);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    }
   };
 
   const handleReset = () => {
-    setAnswer(null);
+    setMessages([]);
     setError(null);
     setQuery("");
     setTimeout(() => textareaRef.current?.focus(), 50);
@@ -159,8 +204,8 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
       borderRadius:"var(--radius-full)",
       padding:"3px 9px",
     },
-    scroll: { flex:1, overflowY:"auto" as const, padding:"32px 24px" },
-    inner:  { maxWidth:720, margin:"0 auto", display:"flex", flexDirection:"column", gap:24, width: "100%" },
+    scroll: { flex:1, overflowY:"auto" as const, padding:"24px 20px" },
+    inner:  { maxWidth:720, margin:"0 auto", display:"flex", flexDirection:"column", gap:20, width: "100%" },
     inputBar: {
       flexShrink:0,
       borderTop:"1px solid var(--color-line)",
@@ -201,7 +246,6 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
       <header style={s.header}>
         <div style={s.headerLeft}>
           
-          {/* Sidebar Toggle Button */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
@@ -229,7 +273,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
           <span style={{ fontSize:13, fontWeight:600, color:"var(--color-ink)" }}>Ask Your Courses</span>
           <span style={s.pill}>Answers with timestamps &amp; source evidence</span>
         </div>
-        {answer && (
+        {messages.length > 0 && (
           <button className="btn-ghost" onClick={handleReset} style={{ gap:5, height:30 }}>
             <ResetIcon /> New query
           </button>
@@ -241,7 +285,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
         <div style={s.inner}>
 
           {/* 1. Onboarding Empty State (If no files are indexed yet) */}
-          {!loading && !error && !answer && !hasSources && (
+          {!hasSources && (
             <div className="anim-enter" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:340, gap:20, textAlign:"center" }}>
               <div style={{ width:60, height:60, borderRadius:"var(--radius-xl)", backgroundColor:"oklch(54% 0.26 270 / 0.08)", border:"1px solid oklch(54% 0.26 270 / 0.18)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--color-brand-500)" }}>
                 <UploadCloudIcon />
@@ -267,65 +311,8 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
             </div>
           )}
 
-          {/* 2. Loading state */}
-          {loading && (
-            <div className="anim-enter" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:340, gap:20, textAlign:"center" }}>
-              <div style={{ width:56, height:56, borderRadius:"var(--radius-xl)", backgroundColor:"oklch(54% 0.26 270 / 0.10)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--color-brand-600)" }}>
-                <Spinner />
-              </div>
-              <div style={{ maxWidth:320 }}>
-                <p style={{ fontSize:14, fontWeight:600, color:"var(--color-ink)", marginBottom:6 }}>
-                  Finding your answer…
-                </p>
-                <p style={{ fontSize:12, color:"var(--color-ink-muted)", lineHeight:1.6 }}>
-                  Searching across your transcripts and pinning the answer to the exact moment it was said.
-                </p>
-              </div>
-              <div style={{ width:"100%", maxWidth:480, display:"flex", flexDirection:"column", gap:8, marginTop:8 }}>
-                {[100, 80, 90].map((w, i) => (
-                  <div key={i} className="anim-shimmer" style={{ height:12, width:`${w}%` }} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 3. Error state */}
-          {!loading && error && (
-            <div className="anim-enter" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:340, gap:16, textAlign:"center" }}>
-              <div style={{ width:52, height:52, borderRadius:"var(--radius-xl)", backgroundColor:"oklch(58% 0.22 20 / 0.10)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, fontWeight:700, color:"var(--color-danger)" }}>
-                !
-              </div>
-              <div style={{ maxWidth:340 }}>
-                <p style={{ fontSize:14, fontWeight:600, color:"var(--color-ink)", marginBottom:6 }}>Query failed</p>
-                <p style={{ fontSize:12, color:"var(--color-ink-muted)", lineHeight:1.6 }}>{error}</p>
-              </div>
-              <button className="btn-ghost" onClick={handleReset} style={{ gap:5 }}>
-                <ResetIcon /> Try again
-              </button>
-            </div>
-          )}
-
-          {/* 4. Success Answer state */}
-          {!loading && !error && answer && (
-            <div ref={resultRef} className="anim-enter" style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                <span className="section-label">
-                  Answer
-                </span>
-                <span className="badge">1 result</span>
-              </div>
-              <AnswerCard
-                answer={answer.answer}
-                sourceLesson={answer.sourceLesson}
-                timestampRange={answer.timestampRange}
-                snippets={answer.snippets}
-                explanation={answer.explanation}
-              />
-            </div>
-          )}
-
-          {/* 5. Idle / Ready to Query state (If files exist but no query run yet) */}
-          {!loading && !error && !answer && hasSources && (
+          {/* 2. Welcome State (If sources exist but thread is empty) */}
+          {hasSources && messages.length === 0 && (
             <div className="anim-enter" style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:340, gap:24, textAlign:"center" }}>
               <div style={{ width:56, height:56, borderRadius:"var(--radius-xl)", backgroundColor:"oklch(54% 0.26 270 / 0.10)", border:"1px solid oklch(54% 0.26 270 / 0.18)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--color-brand-500)" }}>
                 <BookIcon />
@@ -342,7 +329,7 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
                 {SAMPLE_QUERIES.map((q) => (
                   <button
                     key={q}
-                    onClick={() => { setQuery(q); setTimeout(() => textareaRef.current?.focus(), 50); }}
+                    onClick={(e) => { handleSubmit(e, q); }}
                     style={{
                       textAlign:"left",
                       fontSize:11,
@@ -372,12 +359,66 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
               </div>
             </div>
           )}
+
+          {/* 3. Conversation Thread */}
+          {messages.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {messages.map((msg) => (
+                <div key={msg.id} className="anim-enter">
+                  {msg.role === "user" ? (
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <div
+                        style={{
+                          maxWidth: "85%",
+                          backgroundColor: "var(--color-brand-600)",
+                          color: "#fff",
+                          padding: "10px 14px",
+                          borderRadius: "var(--radius-md) var(--radius-md) 2px var(--radius-md)",
+                          fontSize: "13.5px",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {msg.text}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      {msg.isLoading ? (
+                        <div className="card" style={{ padding: "20px", display: "flex", gap: 12, alignItems: "center" }}>
+                          <Spinner />
+                          <span style={{ fontSize: 13, color: "var(--color-ink-muted)" }}>Finding answer in transcripts...</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <span className="section-label" style={{ marginLeft: 4 }}>
+                            Answer
+                          </span>
+                          <AnswerCard
+                            answer={msg.text}
+                            sourceLesson={msg.sourceLesson}
+                            timestampRange={msg.timestampRange}
+                            snippets={msg.snippets}
+                            explanation={msg.explanation}
+                            sourceUrl={msg.sourceUrl}
+                            sourceType={msg.sourceType}
+                            startMs={msg.startMs}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* ── Input bar ───────────────────────────────────── */}
       <div style={s.inputBar}>
-        <form onSubmit={handleSubmit} style={s.form}>
+        <form onSubmit={(e) => handleSubmit(e)} style={s.form}>
           <textarea
             id="query-input"
             ref={textareaRef}

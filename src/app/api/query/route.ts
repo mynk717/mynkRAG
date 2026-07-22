@@ -15,12 +15,17 @@ export async function POST(req: Request) {
     const contexts = await retriever.retrieve({ query, topK: 4 });
     const groundedResult = await generator.generateGroundedAnswer(query, contexts);
 
+    const matchingContext = contexts.find(c => c.lesson_name === groundedResult.source_lesson) || contexts[0];
+
     return NextResponse.json({
       answer: groundedResult.answer,
       sourceLesson: groundedResult.source_lesson,
       timestampRange: groundedResult.timestamp_range,
       snippets: groundedResult.transcript_snippets.length > 0 ? groundedResult.transcript_snippets : contexts.slice(0, 1).map(c => c.chunk_text),
-      explanation: groundedResult.explanation
+      explanation: groundedResult.explanation,
+      sourceUrl: matchingContext?.source_url || null,
+      sourceType: matchingContext?.source_type || null,
+      startMs: matchingContext?.start_ms || null,
     });
 
   } catch (error: any) {
