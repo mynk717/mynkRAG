@@ -38,8 +38,8 @@ export function Sidebar({ isOpen, setIsOpen, onSourcesChange }: SidebarProps) {
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    backgroundColor: "var(--color-surface)",
-    borderRight: "1px solid var(--color-line)",
+    backgroundColor: "var(--color-surface-sidebar)",
+    borderRight: "1px solid var(--color-line-strong)",
     transition: "transform 0.2s ease-in-out, margin-left 0.2s ease-in-out",
     transform: isOpen ? "translateX(0)" : "translateX(-100%)",
   };
@@ -70,7 +70,7 @@ export function Sidebar({ isOpen, setIsOpen, onSourcesChange }: SidebarProps) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 16px",
+            padding: "16px 16px",
             borderBottom: "1px solid var(--color-line)",
             flexShrink: 0,
           }}

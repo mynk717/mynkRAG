@@ -309,8 +309,8 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
           {!loading && !error && answer && (
             <div ref={resultRef} className="anim-enter" style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                <span style={{ fontSize:10, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:"var(--color-ink-faint)" }}>
-                  Grounded answer
+                <span className="section-label">
+                  Answer
                 </span>
                 <span className="badge">1 result</span>
               </div>
@@ -393,8 +393,8 @@ export function QueryPanel({ isSidebarOpen, setIsSidebarOpen, hasSources }: Quer
             }}
             onFocus={e => {
               if (hasSources) {
-                e.target.style.borderColor = "oklch(54% 0.26 270 / 0.60)";
-                e.target.style.boxShadow = "0 0 0 3px oklch(54% 0.26 270 / 0.12)";
+                e.target.style.borderColor = "var(--color-brand-400)";
+                e.target.style.boxShadow = "0 0 0 3px oklch(54% 0.26 270 / 0.14)";
               }
             }}
             onBlur={e => {

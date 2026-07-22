@@ -39,13 +39,17 @@
   --color-surface-muted: oklch(95%   0.008 250);
 
   /* Borders */
-  --color-line:       oklch(88% 0.012 250);
-  --color-line-muted: oklch(92% 0.008 250);
+  --color-line:         oklch(85% 0.014 250);
+  --color-line-muted:   oklch(90% 0.010 250);
+  --color-line-strong:  oklch(78% 0.018 250);
 
   /* Text */
-  --color-ink:        oklch(18%  0.02  250);
-  --color-ink-muted:  oklch(48%  0.02  250);
-  --color-ink-faint:  oklch(68%  0.012 250);
+  --color-ink:        oklch(15%  0.022 250);
+  --color-ink-muted:  oklch(44%  0.022 250);
+  --color-ink-faint:  oklch(64%  0.012 250);
+
+  /* Surface — sidebar gets a faint tint to separate from canvas */
+  --color-surface-sidebar: oklch(98.8% 0.005 250);
 
   /* Status */
   --color-success:  oklch(60% 0.18 155);
@@ -109,12 +113,13 @@
     background-color: var(--color-surface);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);
-    box-shadow: 0 1px 3px oklch(0% 0 0 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.04);
+    box-shadow: 0 1px 4px oklch(0% 0 0 / 0.07), 0 1px 2px oklch(0% 0 0 / 0.04);
   }
   .card-muted {
     background-color: var(--color-surface-raised);
-    border: 1px solid var(--color-line-muted);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);
+    box-shadow: none;
   }
 
   /* Brand button */
@@ -132,9 +137,13 @@
     color: #fff;
     border: none;
     cursor: pointer;
-    transition: background-color 0.15s, opacity 0.15s;
+    transition: background-color 0.15s, box-shadow 0.15s;
   }
-  .btn-brand:hover:not(:disabled) { background-color: var(--color-brand-700); }
+  .btn-brand:hover:not(:disabled) {
+    background-color: var(--color-brand-700);
+    box-shadow: 0 2px 6px oklch(47% 0.28 270 / 0.25);
+  }
+  .btn-brand:active:not(:disabled) { opacity: 0.88; }
   .btn-brand:disabled { opacity: 0.45; cursor: not-allowed; }
 
   /* Ghost button */
@@ -152,12 +161,14 @@
     background: transparent;
     border: 1px solid var(--color-line);
     cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   }
   .btn-ghost:hover:not(:disabled) {
     background-color: var(--color-surface-muted);
     color: var(--color-ink);
+    border-color: var(--color-line-strong);
   }
+  .btn-ghost:active:not(:disabled) { background-color: var(--color-line-muted); }
   .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* Pill badge */
@@ -170,8 +181,9 @@
     font-size: 0.6875rem;
     font-weight: 500;
     border: 1px solid var(--color-line);
-    background-color: var(--color-surface-raised);
+    background-color: var(--color-surface-muted);
     color: var(--color-ink-muted);
+    letter-spacing: 0.01em;
   }
 
   /* Input */
@@ -188,11 +200,23 @@
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .input-base::placeholder { color: var(--color-ink-faint); }
+  .input-base:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-line-strong);
+  }
   .input-base:focus {
     border-color: var(--color-brand-400);
-    box-shadow: 0 0 0 3px oklch(54% 0.26 270 / 0.12);
+    box-shadow: 0 0 0 3px oklch(54% 0.26 270 / 0.14);
   }
   .input-base:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Section label — ALL-CAPS micro heading */
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════

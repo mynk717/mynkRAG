@@ -120,7 +120,7 @@ export function AnswerCard({
             >
               <div style={{ display:"flex", alignItems:"center", gap:7 }}>
                 <span style={{ color:"var(--color-brand-500)" }}><QuoteIcon /></span>
-                <span style={{ fontSize:11, fontWeight:600, color:"var(--color-ink)" }}>Transcript Evidence</span>
+                <span style={{ fontSize:11, fontWeight:600, color:"var(--color-ink)" }}>Source excerpt</span>
                 <span style={{ fontSize:10, color:"var(--color-ink-faint)", backgroundColor:"var(--color-surface-muted)", border:"1px solid var(--color-line)", borderRadius:"var(--radius-full)", padding:"1px 6px" }}>
                   {snippets.length}
                 </span>

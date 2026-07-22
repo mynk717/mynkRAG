@@ -187,7 +187,8 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
             cursor: "pointer",
             backgroundColor: uploadMode === "files" ? "var(--color-surface)" : "transparent",
             color: uploadMode === "files" ? "var(--color-ink)" : "var(--color-ink-faint)",
-            transition: "all 0.15s",
+            boxShadow: uploadMode === "files" ? "0 1px 2px oklch(0% 0 0 / 0.08)" : "none",
+            transition: "all 0.15s ease-in-out",
           }}
         >
           Files
@@ -207,7 +208,8 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
             cursor: "pointer",
             backgroundColor: uploadMode === "folder" ? "var(--color-surface)" : "transparent",
             color: uploadMode === "folder" ? "var(--color-ink)" : "var(--color-ink-faint)",
-            transition: "all 0.15s",
+            boxShadow: uploadMode === "folder" ? "0 1px 2px oklch(0% 0 0 / 0.08)" : "none",
+            transition: "all 0.15s ease-in-out",
           }}
         >
           Folder
@@ -227,7 +229,8 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
             cursor: "pointer",
             backgroundColor: uploadMode === "youtube" ? "var(--color-surface)" : "transparent",
             color: uploadMode === "youtube" ? "var(--color-ink)" : "var(--color-ink-faint)",
-            transition: "all 0.15s",
+            boxShadow: uploadMode === "youtube" ? "0 1px 2px oklch(0% 0 0 / 0.08)" : "none",
+            transition: "all 0.15s ease-in-out",
           }}
         >
           YouTube
@@ -321,7 +324,7 @@ export function UploadBox({ onUploadSuccess }: UploadBoxProps) {
               <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
             </svg>
             <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-ink)" }}>
-              YouTube Subtitle Ingestion
+              Import from YouTube
             </span>
           </div>
 

@@ -62,7 +62,7 @@ export function SourcePanel({ onSourcesChange }: SourcePanelProps) {
       {/* ── Heading ──────────────────────────────────────── */}
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-ink-faint)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <span className="section-label">
             Add Knowledge
           </span>
           <button
@@ -94,7 +94,7 @@ export function SourcePanel({ onSourcesChange }: SourcePanelProps) {
       {/* Indexed list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-ink-faint)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          <span className="section-label">
             Your Library ({sources.length})
           </span>
           {sources.length > 0 && (
